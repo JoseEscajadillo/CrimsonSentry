@@ -11,7 +11,7 @@ flowchart LR
     Vault -->|transfer, si pasa la política| Token[[Token XLM · SAC]]
     Token -->|XLM| Dest[Comercio permitido<br/>allowlist]
     Vault -.->|emite evento| Events[[Eventos on-chain]]
-    Scanner([Escáner CLI · Día 4]) -->|get_status · Stellar RPC| Vault
+    Scanner([Escáner CLI · tools/scanner]) -->|get_status · Stellar RPC| Vault
     Agent ---|misma clave| Own[(Saldo propio del agente)]
     Own -.->|bypass: paga sin pasar por el vault| Dest
     Scanner -.->|saldo propio · Horizon| Own
@@ -51,4 +51,4 @@ Cualquier error hace `panic_with_error!` y **revierte toda la transacción**: no
 | Compatible con x402 / MPP | ❌ (firman fuera del vault) | ✅ |
 | Punto débil conocido | Si el agente tiene saldo propio, puede evadir el vault | — |
 
-Ese punto débil de la Opción A es justo lo que el escáner del Día 4 debe detectar: lee `get_status()` del vault vía Stellar RPC y el saldo propio del agente vía Horizon.
+Ese punto débil de la Opción A es justo lo que detecta el escáner (`tools/scanner`, chequeos C1 y C10): lee `get_status()` del vault vía Stellar RPC y el saldo propio del agente vía Horizon. Sobre el vault principal da 🔴 en C1, porque la cuenta del agente conserva sus XLM de Friendbot.

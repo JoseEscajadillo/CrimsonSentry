@@ -1,0 +1,19 @@
+{
+  "name": "crimsonsentry-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CrimsonSentry off-chain tools: security scanner and demo AI agent for the Policy Vault",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "scan": "node scanner/scan.js",
+    "agent": "node agent/agent.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@stellar/stellar-sdk": "17.1.0"
+  }
+}

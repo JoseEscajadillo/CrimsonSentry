@@ -1,0 +1,39 @@
+{
+  "description": "Guion de la demo: intentos de pago de un agente contra el Policy Vault, con el resultado que debe imponer el contrato. Montos en XLM.",
+  "addresses": {
+    "unknown": "GAMV2LI3GDTTOBOSYEOVTRBKG4ZGQAUV4HBIX3KHWH547PCR3WZQV4AO"
+  },
+  "steps": [
+    {
+      "id": "factura",
+      "title": "Pago legítimo: factura de 8 XLM al comercio registrado",
+      "to": "shop",
+      "amount": 8,
+      "expect": "success"
+    },
+    {
+      "id": "destino-desconocido",
+      "title": "Agente manipulado: 50 XLM a una dirección que no está en la allowlist",
+      "to": "unknown",
+      "amount": 50,
+      "expect": "#1 NotAllowlisted"
+    },
+    {
+      "id": "bucle",
+      "title": "Bucle de reintentos: 6 pagos de 1 XLM seguidos al comercio",
+      "to": "shop",
+      "amount": 1,
+      "repeat": 6,
+      "expect": "4 pagos pasan; el resto choca con #8 TooManyPayments"
+    }
+  ],
+  "afterPause": [
+    {
+      "id": "tras-pausa",
+      "title": "Con el vault en pausa: factura de 2 XLM",
+      "to": "shop",
+      "amount": 2,
+      "expect": "#7 Paused"
+    }
+  ]
+}

@@ -8,12 +8,21 @@
 #   cs-agent  - the AI agent: may only call `pay`
 #   cs-shop   - the one allowlisted merchant
 # The vault pays in native XLM through its Stellar Asset Contract.
+#
+# Optional environment overrides (used by scripts/demo-agente.sh so demo
+# vaults never overwrite the official evidence):
+#   AGENT_ID     identity of the agent            (default cs-agent)
+#   VAULT_ALIAS  CLI alias for the new vault      (default crimson-vault)
+#   OUT          file with the deployment ids     (default evidence/deployment.env)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 source scripts/env.sh
 
 NET=testnet
 STROOPS=10000000 # 1 XLM
+AGENT_ID=${AGENT_ID:-cs-agent}
+VAULT_ALIAS=${VAULT_ALIAS:-crimson-vault}
+OUT=${OUT:-evidence/deployment.env}
 
 # Policy: max 10 XLM per payment, 25 XLM per rolling 24h, 5 payments / 24h.
 TX_LIMIT=$((10 * STROOPS))
@@ -21,7 +30,7 @@ DAILY_LIMIT=$((25 * STROOPS))
 MAX_PAYMENTS=5
 VAULT_FUNDING=$((100 * STROOPS))
 
-for id in cs-owner cs-agent cs-shop; do
+for id in cs-owner "$AGENT_ID" cs-shop; do
   if ! stellar keys address "$id" >/dev/null 2>&1; then
     echo "==> Creating and funding identity $id"
     stellar keys generate "$id" --network "$NET" --fund
@@ -29,7 +38,7 @@ for id in cs-owner cs-agent cs-shop; do
 done
 
 OWNER=$(stellar keys address cs-owner)
-AGENT=$(stellar keys address cs-agent)
+AGENT=$(stellar keys address "$AGENT_ID")
 SHOP=$(stellar keys address cs-shop)
 XLM=$(stellar contract id asset --asset native --network "$NET")
 
@@ -43,7 +52,7 @@ VAULT=$(stellar contract deploy \
   --wasm target/wasm32v1-none/release/policy_vault.wasm \
   --source-account cs-owner \
   --network "$NET" \
-  --alias crimson-vault \
+  --alias "$VAULT_ALIAS" \
   -- \
   --owner "$OWNER" --agent "$AGENT" --token "$XLM" --policy "$POLICY")
 
@@ -51,7 +60,7 @@ echo "==> Funding vault with $((VAULT_FUNDING / STROOPS)) XLM"
 stellar contract invoke --id "$XLM" --source-account cs-owner --network "$NET" \
   -- transfer --from "$OWNER" --to "$VAULT" --amount "$VAULT_FUNDING"
 
-cat > evidence/deployment.env <<EOF
+cat > "$OUT" <<EOF
 VAULT=$VAULT
 XLM=$XLM
 OWNER=$OWNER
@@ -66,4 +75,4 @@ echo "Agent:  $AGENT"
 echo "Shop:   $SHOP"
 echo "Explorer: https://stellar.expert/explorer/testnet/contract/$VAULT"
 echo
-stellar contract invoke --id crimson-vault --source-account cs-owner --network "$NET" --send=no -- get_status
+stellar contract invoke --id "$VAULT" --source-account cs-owner --network "$NET" --send=no -- get_status
