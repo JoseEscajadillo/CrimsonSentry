@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="CrimsonSentry">
+  <rect width="512" height="512" rx="104" fill="#16121A"/>
+  <path d="M256 60 L410 118 V242 C410 340 344 414 256 454 C168 414 102 340 102 242 V118 Z" fill="#A3203A"/>
+  <path d="M256 102 L374 146 V244 C374 322 324 382 256 414 C188 382 138 322 138 244 V146 Z" fill="none" stroke="#F6E1E6" stroke-opacity="0.35" stroke-width="6"/>
+  <circle cx="256" cy="226" r="46" fill="#F7F3F4"/>
+  <path d="M235 250 L219 334 H293 L277 250 Z" fill="#F7F3F4"/>
+  <circle cx="256" cy="226" r="17" fill="#A3203A"/>
+</svg>

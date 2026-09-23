@@ -42,14 +42,21 @@ jobs:
 
   # cargo scout-audit (CoinFabrik). The official action cannot build
   # soroban-sdk 28, so scout runs through scripts/scout.sh (see its header).
+  # No rust-cache here: a restored cache leaves scout's detector build out of
+  # sync with the nightly toolchain it installs, and the detectors fail to build.
   scout-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
       - run: cargo install --locked cargo-dylint dylint-link cargo-scout-audit
-      - run: bash scripts/scout.sh
+      # Drop the committed report so a failed run can never publish a stale one.
+      - run: rm -f docs/scout-report.md && bash scripts/scout.sh
+      - name: gate on critical findings
+        run: |
+          row=$(grep -E '^\| policy_vault ' docs/scout-report.md)
+          echo "$row"
+          echo "$row" | awk -F'|' '{ gsub(/ /, "", $3); gsub(/ /, "", $4); if ($3 != "Analyzed" || $4 + 0 > 0) exit 1 }'
       - name: report
         if: always()
         run: cat docs/scout-report.md >> "$GITHUB_STEP_SUMMARY" || true

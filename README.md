@@ -1,3 +1,5 @@
+<img src="docs/logo.png" alt="CrimsonSentry" width="96" align="right">
+
 # CrimsonSentry
 
 > Los agentes de IA ya mueven dinero solos, pero nadie revisa si su wallet tiene límites de seguridad.
