@@ -9,6 +9,25 @@ Equipo: Santiago Fabrizio Lindley Santivañez · José Fernando Escajadillo Gasp
 
 📐 Esquema completo, con diagramas de flujo: [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md)
 
+
+## ✅ Evidencia en Stellar testnet
+
+**Contrato Policy Vault:** [`CB5X32K4QZLPO6YZYE2KWZW2QAXXUT5AJSJJFF2OP73IYCFMCYZJEBXG`](https://stellar.expert/explorer/testnet/contract/CB5X32K4QZLPO6YZYE2KWZW2QAXXUT5AJSJJFF2OP73IYCFMCYZJEBXG)
+
+Política desplegada: máx. 10 XLM por pago, 25 XLM por 24h móviles, máx. 5 pagos en 24h, un solo comercio en la allowlist. El vault se fondeó con 100 XLM de testnet.
+
+| Escenario | Resultado on-chain | Transacción |
+|---|---|---|
+| Deploy del contrato | ✅ | [`83a8576b…`](https://stellar.expert/explorer/testnet/tx/83a8576b01aeae5a858a61fe83452275f87aaa7c2daa4e29f9bcf7b242634954) |
+| Pago válido de 10 XLM al comercio permitido | ✅ SUCCESS (ledger 4824948) | [`353b05e3…`](https://stellar.expert/explorer/testnet/tx/353b05e366f9e4491b87747bfea9e5e624a33307c413470df5926d6cdc990671) |
+| Ataque de pagos paralelos — pago A de 10 XLM (acumulado 20) | ✅ SUCCESS (ledger 4824950) | [`c1fa5ea6…`](https://stellar.expert/explorer/testnet/tx/c1fa5ea6a2d240a82fe25a39b98a1f8355921b76564b1d55696f4260b467971d) |
+| Ataque de pagos paralelos — pago B de 10 XLM (acumulado 30 > 25) | ⛔ **FAILED — `Error(Contract, #3)` OverDailyLimit** (ledger 4824951) | [`89f54fce…`](https://stellar.expert/explorer/testnet/tx/89f54fceaeb9907fd1c8bbe63663a4b4cfd3fc9b0bbe94ed5d6481832add745b) |
+| Pago de 15 XLM (límite por pago 10) | 🛑 rechazado en simulación: `#2` | — |
+| Pago a una dirección fuera de la allowlist | 🛑 rechazado en simulación: `#1` | — |
+| Pago con el vault en pausa (kill switch) | 🛑 rechazado en simulación: `#7` | pausa [`2a228d6d…`](https://stellar.expert/explorer/testnet/tx/2a228d6d3829271f3bf433da187124c66a7996f5eb4e2de559501f5632dbaf3e) |
+
+El pago B pasó la simulación por sí solo, porque se construyó cuando solo había 10 XLM gastados. On-chain, el vault vio el acumulado real y revirtió: **las validaciones fuera de la cadena se pueden burlar; la regla on-chain no.** Detalle completo en [`evidence/testnet-evidence.md`](evidence/testnet-evidence.md).
+
 ---
 
 ## Cómo funciona
@@ -167,7 +186,7 @@ La demo produce:
 
 - [x] Policy Vault con tests (Días 1–2)
 - [x] `cargo scout-audit`: 0 críticos (hallazgos revisados arriba)
-- [ ] Deploy en testnet más evidencia (Día 3)
+- [x] Deploy en testnet más evidencia (Día 3)
 - [ ] Escáner CLI: lee la cuenta del agente vía Horizon (saldo fuera del vault, firmantes, umbrales) y el vault vía Stellar RPC (`get_status`), y reporta un semáforo con el mapeo OWASP (Día 4)
 - [ ] Agente demo con un prompt inyectado (Día 5)
 - [ ] Arquitectura B: *contract account* con `__check_auth` (post-hackathon)

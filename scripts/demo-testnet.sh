@@ -36,11 +36,13 @@ OUT=evidence/testnet-evidence.md
 
 row() { echo "| $1 | $2 | $3 | $4 |" >> "$OUT"; echo "    -> $3"; }
 
-# Builds (and simulates) an unsigned `pay` tx from the agent, without sending it.
+# Builds an unsigned `pay` tx from the agent without sending it. `--build-only`
+# does not simulate, so `tx simulate` adds the Soroban resources and the auth
+# entry (without them the network rejects the tx as TxMalformed).
 build_pay() { # <monto-en-stroops>
   stellar contract invoke --id "$VAULT" --source-account cs-agent --network "$NET" \
-    --build-only --instruction-leeway 2000000 \
-    -- pay --destino "$SHOP" --monto "$1"
+    --build-only -- pay --destino "$SHOP" --monto "$1" \
+    | stellar tx simulate --network "$NET" --source-account cs-agent --instruction-leeway 2000000
 }
 
 sign() { stellar tx sign --sign-with-key cs-agent --network "$NET"; }
