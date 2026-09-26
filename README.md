@@ -185,7 +185,7 @@ Resultado: **0 críticos · 1 medio (aceptado) · 0 menores · 5 mejoras (falsos
 Scout 0.3.16 no compila `soroban-sdk 28` tal como viene; [`scripts/scout.sh`](scripts/scout.sh) aplica dos ajustes solo para la auditoría, sin tocar el contrato, y explica por qué.
 
 ```bash
-cargo install --locked cargo-dylint dylint-link cargo-scout-audit   # una vez (Linux/WSL/macOS)
+cargo install --locked cargo-dylint dylint-link cargo-scout-audit@0.3.16   # una vez (Linux/WSL/macOS)
 bash scripts/scout.sh
 ```
 

@@ -49,7 +49,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo install --locked cargo-dylint dylint-link cargo-scout-audit
+      # Pinned: 0.3.17 (25/09/2026) looks for a detectors branch that does not exist upstream.
+      - run: cargo install --locked cargo-dylint dylint-link cargo-scout-audit@0.3.16
       # Drop the committed report so a failed run can never publish a stale one.
       - run: rm -f docs/scout-report.md && bash scripts/scout.sh
       - name: gate on critical findings

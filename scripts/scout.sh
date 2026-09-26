@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Runs cargo scout-audit (CoinFabrik) on the Policy Vault. Linux/WSL/macOS only.
 #
-#   cargo install --locked cargo-dylint dylint-link cargo-scout-audit   # once
+#   cargo install --locked cargo-dylint dylint-link cargo-scout-audit@0.3.16   # once
 #   bash scripts/scout.sh
 #
 # Two workarounds for scout 0.3.16 + soroban-sdk 28 (neither touches the contract):
