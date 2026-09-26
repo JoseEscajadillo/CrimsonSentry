@@ -11,6 +11,7 @@
 import { parseArgs } from 'node:util';
 import { readFileSync, appendFileSync, existsSync } from 'node:fs';
 import { createInterface } from 'node:readline/promises';
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { connect, getVaultStatus, xlm } from '../lib/stellar.js';
@@ -52,6 +53,15 @@ const wallet = new VaultWallet(conn, { vaultId: args.vault, identity: args.ident
 const prompt = args.step && process.stdin.isTTY ? createInterface({ input: process.stdin, output: process.stdout }) : null;
 const link = (hash) => `${conn.expertUrl}/tx/${hash}`;
 
+// OPEN_FIRST_REJECTION=1 opens the first on-chain rejection in the default
+// browser, so a recording can jump straight to the public proof.
+let openedRejection = process.env.OPEN_FIRST_REJECTION !== '1';
+function openInBrowser(url) {
+  const [cmd, args] = process.platform === 'win32' ? ['cmd.exe', ['/c', 'start', '', url]]
+    : process.platform === 'darwin' ? ['open', [url]] : ['xdg-open', [url]];
+  spawn(cmd, args, { stdio: 'ignore', detached: true }).unref();
+}
+
 if (args.evidence && !existsSync(args.evidence)) {
   appendFileSync(args.evidence, `# CrimsonSentry — demo del agente\n\n- Vault: [\`${args.vault}\`](${conn.expertUrl}/contract/${args.vault})\n- Agente: \`${address}\`\n- Modo: ${args.force ? 'cliente comprometido (envía aunque la simulación rechace)' : 'cliente normal (simula antes de enviar)'}\n\n| Paso | Intento | Resultado | Transacción |\n|---|---|---|---|\n`);
 }
@@ -78,7 +88,12 @@ for (const s of steps) {
       'failed-onchain': `⛔ FAILED on-chain · ${err}`,
       'rejected-simulation': `🛑 bloqueado en simulación · ${err} (no llega a la red)`,
     }[r.outcome];
-    console.log(`  ${text}${r.hash ? `\n     ${link(r.hash)}` : ''}`);
+    console.log(`  ${text}${r.hash ? `\n     🔗 Ver en Stellar Expert: ${link(r.hash)}` : ''}`);
+    if (r.outcome === 'failed-onchain' && !openedRejection) {
+      openedRejection = true;
+      console.log('     (abriendo esta transacción en el navegador…)');
+      openInBrowser(link(r.hash));
+    }
     if (args.evidence) {
       const tx = r.hash ? `[\`${r.hash.slice(0, 8)}…\`](${link(r.hash)})` : '—';
       const verdict = {

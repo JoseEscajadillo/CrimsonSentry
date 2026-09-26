@@ -54,7 +54,7 @@ stellar tx new payment --source-account "$AGENT_ID" --destination "$OWNER" \
 scan
 
 step "5. El agente ejecuta el guion como cliente comprometido"
-(cd tools && node agent/run.js --vault "$VAULT" --identity "$AGENT_ID" --force --evidence "../$EVID")
+(cd tools && OPEN_FIRST_REJECTION=1 node agent/run.js --vault "$VAULT" --identity "$AGENT_ID" --force --evidence "../$EVID")
 
 step "6. Escáner: el dueño ve los intentos rechazados"
 scan
