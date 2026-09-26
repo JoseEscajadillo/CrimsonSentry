@@ -1,4 +1,4 @@
-<img src="docs/logo.png" alt="CrimsonSentry" width="96" align="right">
+<p align="center"><img src="docs/logo.jpg" alt="CrimsonSentry" width="520"></p>
 
 # CrimsonSentry
 
