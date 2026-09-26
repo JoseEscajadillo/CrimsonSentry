@@ -1,0 +1,23 @@
+{
+  "description": "Demo de 1 minuto para la exposición en vivo: un pago aprobado y un ataque rechazado on-chain. Montos en XLM.",
+  "addresses": {
+    "unknown": "GAMV2LI3GDTTOBOSYEOVTRBKG4ZGQAUV4HBIX3KHWH547PCR3WZQV4AO"
+  },
+  "steps": [
+    {
+      "id": "factura",
+      "title": "Pago legítimo: factura de 8 XLM al comercio registrado",
+      "to": "shop",
+      "amount": 8,
+      "expect": "success"
+    },
+    {
+      "id": "destino-desconocido",
+      "title": "Agente manipulado: 50 XLM a una dirección que no está en la allowlist",
+      "to": "unknown",
+      "amount": 50,
+      "expect": "#1 NotAllowlisted"
+    }
+  ],
+  "afterPause": []
+}
