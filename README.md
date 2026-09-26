@@ -9,6 +9,8 @@
 
 Equipo: Santiago Fabrizio Lindley Santivañez · José Fernando Escajadillo Gaspar · Cesar Adrian Guevara Salcedo — Licencia [MIT](LICENSE)
 
+🎬 **Video demo:** https://www.youtube.com/watch?v=lgQYx48JnV0 · 🎤 **Video pitch:** https://www.youtube.com/watch?v=Lhr5abKy-eI
+
 📐 Esquema completo, con diagramas de flujo: [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md)
 
 | Pieza | Qué hace | Dónde |
