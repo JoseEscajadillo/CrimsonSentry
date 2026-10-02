@@ -147,7 +147,10 @@ function c8WindowUsage(d) {
 function c9FailedAttempts(d) {
   const t = ['C9', 'Intentos fallidos del agente (24h)', ['ASI01', 'ASI10']];
   const since = d.now - DAY_MS;
-  const failed = d.agentActivity.transactions.filter((tx) => !tx.successful && Date.parse(tx.created_at) >= since);
+  // Horizon also lists txs sent by others that merely touch the agent's account.
+  const failed = d.agentActivity.transactions.filter(
+    (tx) => tx.source_account === d.status.agent && !tx.successful && Date.parse(tx.created_at) >= since,
+  );
   if (failed.length === 0) return result(...t, 'green', 'Ninguna transacción rechazada on-chain.');
   const detail = `${failed.length} tx rechazada(s) on-chain: ${failed.slice(0, 3).map((tx) => tx.hash.slice(0, 8) + '…').join(', ')}.`;
   if (failed.length >= 3) return result(...t, 'red', `${detail} Patrón típico de un agente secuestrado que insiste.`, 'Pausar el vault (pause) y revisar al agente.');

@@ -10,7 +10,7 @@
   },
   "scripts": {
     "scan": "node scanner/scan.js",
-    "agent": "node agent/agent.js",
+    "agent": "node agent/run.js",
     "test": "node --test"
   },
   "dependencies": {
