@@ -6,6 +6,15 @@ on:
   pull_request:
 
 jobs:
+  documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - run: python scripts/check-doc-links.py
+
   test:
     runs-on: ubuntu-latest
     steps:
