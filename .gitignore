@@ -14,4 +14,5 @@ test_snapshots/
 # Node tools (scanner / demo agent)
 node_modules/
 .env
-evidence/demo-corta.env
+evidence/*.env
+evidence/.*.log
