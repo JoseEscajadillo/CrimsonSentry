@@ -18,3 +18,8 @@ cd contracts/policy-vault
 RUSTC_WRAPPER="$PWD/../../scripts/scout-rustc-wrap.sh" cargo scout-audit \
   --output-format md --output-path ../../docs/scout-report.md \
   -- --target="$(rustc -vV | sed -n 's/^host: //p')"
+# Scout emits source links relative to the repository root; the report lives
+# in docs/, so adjust them to remain navigable in GitHub's Markdown renderer.
+sed -i 's#](contracts/#](../contracts/#g' ../../docs/scout-report.md
+sed -i '1a\
+> Informe histórico de análisis estático. CI regenera el resultado para cada cambio; este archivo no certifica por sí solo la versión actual.' ../../docs/scout-report.md

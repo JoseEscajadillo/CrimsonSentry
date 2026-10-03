@@ -1,16 +1,8 @@
 
 
-<style>
-.markdown-body table {min-width: 100%;width: 100%;display: table;}
-thead {min-width: 100%;width: 100%;}
-th {min-width: 60%;width: 60%;}
-th:last-child {min-width: 20%;width: 20%;}
-th:first-child {min-width: 20%;width: 20%;}
-</style>
-
-
-
 # Scout Report - CrimsonSentry - 2026-09-23
+
+> Informe histórico generado antes de incorporar la rotación de dueño en dos pasos. El flujo de CI vuelve a generar el análisis para cada cambio; este archivo no certifica por sí solo la versión actual.
 
 ## Summary
 
@@ -47,7 +39,7 @@ Issues found:
 
 | ID  | Package | File Location |
 | --- | ------- | ------------- |
-| 0 | contracts | [lib.rs:207:9 - 207:65](contracts/policy-vault/src/lib.rs) |
+| 0 | contracts | [lib.rs:207:9 - 207:65](../contracts/policy-vault/src/lib.rs) |
 
 
 
@@ -69,10 +61,10 @@ Issues found:
 
 | ID  | Package | File Location |
 | --- | ------- | ------------- |
-| 1 | contracts | [lib.rs:241:5 - 241:27](contracts/policy-vault/src/lib.rs) |
-| 2 | contracts | [lib.rs:164:5 - 164:56](contracts/policy-vault/src/lib.rs) |
-| 3 | contracts | [lib.rs:251:5 - 251:51](contracts/policy-vault/src/lib.rs) |
-| 4 | contracts | [lib.rs:231:5 - 231:48](contracts/policy-vault/src/lib.rs) |
-| 5 | contracts | [lib.rs:245:5 - 245:29](contracts/policy-vault/src/lib.rs) |
+| 1 | contracts | [lib.rs:241:5 - 241:27](../contracts/policy-vault/src/lib.rs) |
+| 2 | contracts | [lib.rs:164:5 - 164:56](../contracts/policy-vault/src/lib.rs) |
+| 3 | contracts | [lib.rs:251:5 - 251:51](../contracts/policy-vault/src/lib.rs) |
+| 4 | contracts | [lib.rs:231:5 - 231:48](../contracts/policy-vault/src/lib.rs) |
+| 5 | contracts | [lib.rs:245:5 - 245:29](../contracts/policy-vault/src/lib.rs) |
 
 
