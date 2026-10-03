@@ -1,54 +1,48 @@
-# CrimsonSentry — Arquitectura
+# Arquitectura
 
-Esquema del contrato `policy-vault` (Días 1–2, terminado y probado: 18 tests, `cargo scout-audit` sin hallazgos críticos).
+CrimsonSentry implementa una custodia programable para pagos de agentes en Stellar. El dueño configura el vault y conserva las acciones administrativas; el agente solo puede solicitar pagos que el contrato autoriza según una política almacenada on-chain.
 
-## Actores y componentes
+## Componentes y límites de confianza
 
 ```mermaid
 flowchart LR
-    Owner([Dueño humano]) -->|set_policy · pause/unpause · set_agent · withdraw| Vault[(Policy Vault<br/>contrato Soroban)]
-    Agent([Agente IA]) -->|pay destino, monto| Vault
-    Vault -->|transfer, si pasa la política| Token[[Token XLM · SAC]]
-    Token -->|XLM| Dest[Comercio permitido<br/>allowlist]
-    Vault -.->|emite evento| Events[[Eventos on-chain]]
-    Scanner([Escáner CLI · tools/scanner]) -->|get_status · Stellar RPC| Vault
-    Agent ---|misma clave| Own[(Saldo propio del agente)]
-    Own -.->|bypass: paga sin pasar por el vault| Dest
-    Scanner -.->|saldo propio · Horizon| Own
+    Owner[Dueño] -->|política, pausa, rotación, retiro| Vault[Policy Vault · Soroban]
+    Agent[Agente] -->|pay destino, monto| Vault
+    Vault -->|transferencia autorizada| Token[SAC de XLM]
+    Token --> Merchant[Destino permitido]
+    Vault -.->|eventos| Ledger[Ledger Stellar]
+    Scanner[Escáner de solo lectura] -->|get_status · RPC| Vault
+    Scanner -->|cuentas y actividad · Horizon| Horizon[Horizon]
+    Agent -.->|puede gastar saldo propio fuera del vault| Merchant
 ```
 
-## Flujo de validación de `pay()` (en el orden exacto del código)
+El contrato constituye el límite de confianza para los fondos depositados en él. La clave del agente y la información observada por el escáner quedan fuera de ese límite. Horizon permite detectar parte de la actividad, pero no puede impedir que una cuenta con saldo propio pague directamente.
 
-```mermaid
-flowchart TD
-    Start([Agente llama pay]) --> Auth{¿Firma del agente?}
-    Auth -- no --> EA[Tx rechazada: falta autorización]
-    Auth -- sí --> Amount{¿Monto > 0?}
-    Amount -- no --> E5[Error #5 InvalidAmount]
-    Amount -- sí --> Paused{¿Vault en pausa?}
-    Paused -- sí --> E7[Error #7 Paused]
-    Paused -- no --> Allow{¿Destino en allowlist?}
-    Allow -- no --> E1[Error #1 NotAllowlisted]
-    Allow -- sí --> TxLimit{¿Monto <= límite por pago?}
-    TxLimit -- no --> E2[Error #2 OverTxLimit]
-    TxLimit -- sí --> Count{¿Menos de N pagos en 24h?}
-    Count -- no --> E8[Error #8 TooManyPayments]
-    Count -- sí --> Overflow{¿Gasto 24h + monto sin overflow?}
-    Overflow -- no --> E4[Error #4 ArithmeticOverflow]
-    Overflow -- sí --> Daily{¿Gasto 24h + monto <= límite diario?}
-    Daily -- no --> E3[Error #3 OverDailyLimit]
-    Daily -- sí --> OK([Registro del gasto → transfer → evento paid])
-```
+## Flujo de un pago
 
-Cualquier error hace `panic_with_error!` y **revierte toda la transacción**: no se registra el gasto ni se mueve dinero.
+1. `pay` exige la autorización de la dirección de agente configurada.
+2. Rechaza montos no positivos y pagos mientras el vault esté pausado.
+3. Comprueba que el destino esté permitido y que se respeten el límite por pago, el máximo de operaciones y el límite de gasto de las últimas 24 horas.
+4. Registra el pago en el log persistente y transfiere el activo desde el contrato.
+5. Emite el evento `paid`.
 
-## Opción A (en construcción) vs Opción B (objetivo)
+La transferencia y la actualización del log forman parte de la misma transacción Stellar: si falla cualquier paso, el ledger revierte toda la operación. La ventana es móvil; una entrada deja de contar al cumplirse 24 horas desde su timestamp.
 
-| | Opción A — actual | Opción B — objetivo |
-|---|---|---|
-| Custodia de fondos | El vault retiene el dinero | La wallet del agente, convertida en *contract account* |
-| Enforcement | Lógica del contrato en `pay()` | `__check_auth()` en cada firma |
-| Compatible con x402 / MPP | ❌ (firman fuera del vault) | ✅ |
-| Punto débil conocido | Si el agente tiene saldo propio, puede evadir el vault | — |
+## Estado y límites de recursos
 
-Ese punto débil de la Opción A es justo lo que detecta el escáner (`tools/scanner`, chequeos C1 y C10): lee `get_status()` del vault vía Stellar RPC y el saldo propio del agente vía Horizon. Sobre el vault principal da 🔴 en C1, porque la cuenta del agente conserva sus XLM de Friendbot.
+- El dueño, el agente, el token, la política y la pausa se guardan como estado de instancia.
+- El log de pagos se guarda en almacenamiento persistente y se poda al procesar un pago nuevo.
+- La allowlist está limitada a 32 destinos.
+- La política limita los pagos a 100 por ventana de 24 horas.
+- Las entradas antiguas del log están ordenadas por timestamp; el contrato conserva el sufijo vigente.
+- El TTL de instancia se amplía al leer o modificar el contrato. El log persistente renueva su TTL cuando se registra un pago.
+
+## Controles administrativos
+
+El dueño puede reemplazar la política, pausar, reanudar, rotar el agente y retirar fondos. La política debe tener límites positivos y coherentes; dueño y agente deben ser distintos, y ninguno de los dos ni el contrato pueden ser destinos pagables. El cambio de dueño requiere una propuesta del dueño actual y aceptación firmada por la nueva dirección. La propuesta se puede cancelar y queda visible mediante `get_pending_owner`. Mientras haya una propuesta, el contrato evita que esa dirección se convierta en agente o destino pagable. `withdraw` sigue disponible en pausa para que el dueño pueda recuperar los fondos.
+
+El contrato no admite actualización de código. Para cambiar la lógica, se debe desplegar una nueva instancia y migrar los fondos mediante el método de retiro.
+
+## Evolución prevista
+
+La implementación actual corresponde al patrón de vault: el agente llama explícitamente a `pay`. No intercepta transferencias firmadas directamente por la cuenta del agente, por lo que no aplica automáticamente a protocolos de pagos que firman desde esa cuenta. La evolución propuesta es una cuenta de contrato con `__check_auth`, acompañada de un diseño específico de autorización, despliegue y recuperación.
