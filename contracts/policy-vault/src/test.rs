@@ -192,6 +192,24 @@ fn payment_rate_limit_stops_many_small_payments() {
     );
 }
 
+/// Lowering the cap below the payments already made in the window blocks
+/// the agent right away, instead of waiting for the window to roll.
+#[test]
+fn lowering_the_payment_cap_blocks_further_payments() {
+    let s = setup();
+    for _ in 0..3 {
+        s.vault.pay(&s.recipient_ok, &1);
+    }
+    s.vault.set_policy(&Policy {
+        max_payments_per_day: 2,
+        ..policy(&s.env, core::slice::from_ref(&s.recipient_ok))
+    });
+    assert_eq!(
+        s.vault.try_pay(&s.recipient_ok, &1),
+        Err(fail(VaultError::TooManyPayments))
+    );
+}
+
 #[test]
 fn pause_blocks_the_agent_and_unpause_restores_it() {
     let s = setup();
@@ -246,6 +264,10 @@ fn owner_functions_require_the_owner_signature() {
     assert_eq!(s.env.auths()[0].0, s.owner);
     s.vault.pause();
     assert_eq!(s.env.auths()[0].0, s.owner);
+    s.vault.unpause();
+    assert_eq!(s.env.auths()[0].0, s.owner);
+    s.vault.set_agent(&s.agent);
+    assert_eq!(s.env.auths()[0].0, s.owner);
     s.vault.withdraw(&s.owner, &1);
     assert_eq!(s.env.auths()[0].0, s.owner);
 }
@@ -256,6 +278,8 @@ fn nothing_works_without_signatures() {
     s.env.set_auths(&[]);
     assert!(s.vault.try_pay(&s.recipient_ok, &10).is_err());
     assert!(s.vault.try_pause().is_err());
+    assert!(s.vault.try_unpause().is_err());
+    assert!(s.vault.try_set_policy(&policy(&s.env, &[])).is_err());
     assert!(s.vault.try_withdraw(&s.agent, &1_000).is_err());
     assert!(s.vault.try_set_agent(&s.agent).is_err());
     assert_eq!(s.token.balance(&s.vault.address), 1_000);

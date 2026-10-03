@@ -36,8 +36,8 @@ function liveDeployment() {
     allowlistAccounts: { [SHOP]: true },
     agentActivity: {
       transactions: [
-        { hash: '89f54fceaeb9', successful: false, created_at: '2026-09-23T07:25:42Z' },
-        { hash: 'c1fa5ea6a2d2', successful: true, created_at: '2026-09-23T07:25:37Z' },
+        { hash: '89f54fceaeb9', source_account: AGENT, successful: false, created_at: '2026-09-23T07:25:42Z' },
+        { hash: 'c1fa5ea6a2d2', source_account: AGENT, successful: true, created_at: '2026-09-23T07:25:37Z' },
       ],
       operations: [
         { type: 'invoke_host_function', source_account: AGENT, transaction_successful: true,
@@ -111,9 +111,15 @@ test('direct payments by the agent are a bypass, refunds to the owner are not', 
 
 test('three or more on-chain rejections in 24h is red', () => {
   const d = hardened();
-  d.agentActivity.transactions = ['a', 'b', 'c'].map((h) => ({ hash: h.repeat(8), successful: false, created_at: '2026-09-23T07:59:00Z' }));
+  d.agentActivity.transactions = ['a', 'b', 'c'].map((h) => ({ hash: h.repeat(8), source_account: AGENT, successful: false, created_at: '2026-09-23T07:59:00Z' }));
   assert.equal(byId(runChecks(d)).C9, 'red');
   d.agentActivity.transactions.forEach((tx) => { tx.created_at = '2026-09-21T00:00:00Z'; });
+  assert.equal(byId(runChecks(d)).C9, 'green');
+});
+
+test('failed txs sent by someone else do not count as agent rejections', () => {
+  const d = hardened();
+  d.agentActivity.transactions = ['a', 'b', 'c'].map((h) => ({ hash: h.repeat(8), source_account: 'GSTRANGER', successful: false, created_at: '2026-09-23T07:59:00Z' }));
   assert.equal(byId(runChecks(d)).C9, 'green');
 });
 

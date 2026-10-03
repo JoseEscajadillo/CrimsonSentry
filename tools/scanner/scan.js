@@ -48,6 +48,12 @@ Código de salida: 0 verde · 1 amarillo · 2 rojo`);
   process.exit(args.help ? 0 : 64);
 }
 
+const feeBufferXlm = Number(args['fee-buffer']);
+if (!Number.isFinite(feeBufferXlm) || feeBufferXlm < 0) {
+  console.error(`✖ --fee-buffer debe ser un número de XLM ≥ 0 (recibido: "${args['fee-buffer']}").`);
+  process.exit(64);
+}
+
 async function collect(conn) {
   const status = await getVaultStatus(conn, args.vault);
   const agentId = args.agent ?? status.agent;
@@ -67,7 +73,7 @@ async function collect(conn) {
   }));
   const expectedWasm = args['expected-wasm']
     ?? (existsSync(DEFAULT_WASM_FILE) ? readFileSync(DEFAULT_WASM_FILE, 'utf8').trim() : null);
-  const feeBuffer = BigInt(Math.round(Number(args['fee-buffer']) * Number(STROOPS_PER_XLM)));
+  const feeBuffer = BigInt(Math.round(feeBufferXlm * Number(STROOPS_PER_XLM)));
   return {
     status, contractInfo, baseReserve, agentAccount, ownerAccount, agentActivity,
     allowlistAccounts, expectedWasm, feeBuffer, nativeSac: nativeSacId(conn), now: Date.now(),
