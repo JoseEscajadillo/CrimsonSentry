@@ -47,7 +47,7 @@ Issues found:
 
 | ID  | Package | File Location |
 | --- | ------- | ------------- |
-| 0 | contracts | [lib.rs:207:9 - 207:65](contracts/policy-vault/src/lib.rs) |
+| 0 | contracts | [lib.rs:207:9 - 207:65](../contracts/policy-vault/src/lib.rs) |
 
 
 
@@ -69,10 +69,10 @@ Issues found:
 
 | ID  | Package | File Location |
 | --- | ------- | ------------- |
-| 1 | contracts | [lib.rs:241:5 - 241:27](contracts/policy-vault/src/lib.rs) |
-| 2 | contracts | [lib.rs:164:5 - 164:56](contracts/policy-vault/src/lib.rs) |
-| 3 | contracts | [lib.rs:251:5 - 251:51](contracts/policy-vault/src/lib.rs) |
-| 4 | contracts | [lib.rs:231:5 - 231:48](contracts/policy-vault/src/lib.rs) |
-| 5 | contracts | [lib.rs:245:5 - 245:29](contracts/policy-vault/src/lib.rs) |
+| 1 | contracts | [lib.rs:241:5 - 241:27](../contracts/policy-vault/src/lib.rs) |
+| 2 | contracts | [lib.rs:164:5 - 164:56](../contracts/policy-vault/src/lib.rs) |
+| 3 | contracts | [lib.rs:251:5 - 251:51](../contracts/policy-vault/src/lib.rs) |
+| 4 | contracts | [lib.rs:231:5 - 231:48](../contracts/policy-vault/src/lib.rs) |
+| 5 | contracts | [lib.rs:245:5 - 245:29](../contracts/policy-vault/src/lib.rs) |
 
 

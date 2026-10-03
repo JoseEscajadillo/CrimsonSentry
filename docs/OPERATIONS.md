@@ -30,18 +30,15 @@ bash scripts/deploy-testnet.sh
 bash scripts/demo-testnet.sh
 ```
 
-El primer comando crea las identidades CLI que falten, despliega un vault y escribe sus identificadores públicos en `evidence/deployment.env`. Ese archivo es temporal, está excluido de Git y se genera de nuevo en cada entorno. Las claves privadas permanecen en el keystore local de Stellar CLI.
+El primer comando crea las identidades CLI que falten, despliega un vault y escribe sus identificadores públicos en `evidence/deployment.env`. Ese archivo solo contiene direcciones públicas y se regenera en cada despliegue; el del vault principal está versionado porque lo usan los scripts de demo. Las claves privadas permanecen en el keystore local de Stellar CLI.
 
 Los scripts interactúan con Stellar testnet y crean transacciones. Revisa sus parámetros y la cuenta de origen antes de ejecutarlos. No los adaptes a mainnet sin una revisión de seguridad independiente.
 
 ## Rotación del dueño
 
-1. El dueño actual invoca `propose_owner` con la dirección nueva.
-2. Verifica la propuesta con `get_pending_owner` y revisa el evento publicado.
-3. La nueva dirección invoca `accept_owner` y firma la transacción para asumir el control.
-4. Si la propuesta es incorrecta, el dueño actual invoca `cancel_owner_change` antes de la aceptación.
+El contrato desplegado no tiene una función para cambiar de dueño. Para rotar la clave del dueño sin redesplegar, conviene que la cuenta del dueño sea multifirma (`SetOptions`): se agrega un firmante nuevo y se retira el anterior, sin tocar el contrato.
 
-La propuesta no transfiere autoridad por sí sola. La dirección nueva debe estar activa y poder pagar las comisiones de aceptación.
+El cambio de dueño en dos pasos (`propose_owner`, `accept_owner` y `cancel_owner_change`) está propuesto en el PR #2. Como el contrato no admite upgrades, adoptarlo requiere desplegar un vault nuevo.
 
 ## Demos
 
@@ -58,7 +55,7 @@ bash scripts/demo-corta.sh prep
 bash scripts/demo-corta.sh live
 ```
 
-Los archivos `.env` y logs auxiliares se generan localmente y están ignorados por Git. Los informes Markdown de evidencia se pueden revisar y compartir, verificando primero que no contengan información privada.
+Los logs auxiliares y los `.env` locales están ignorados por Git; los `evidence/*.env` versionados solo contienen direcciones públicas. Los informes Markdown de evidencia se pueden revisar y compartir, verificando primero que no contengan información privada.
 
 ## Auditoría estática
 
@@ -73,4 +70,4 @@ El script contiene los ajustes necesarios para ejecutar Scout 0.3.16 con el SDK 
 
 ## Integración continua
 
-El flujo `.github/workflows/ci.yml` ejecuta Rust fmt, Clippy, pruebas, compilación WASM, pruebas Node.js y auditoría Scout. Las transacciones de testnet no forman parte de CI.
+El flujo `.github/workflows/ci.yml` ejecuta la verificación de enlaces de la documentación, Rust fmt, Clippy, pruebas, compilación WASM, pruebas Node.js y auditoría Scout. Las transacciones de testnet no forman parte de CI.

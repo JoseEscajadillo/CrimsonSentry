@@ -18,3 +18,6 @@ cd contracts/policy-vault
 RUSTC_WRAPPER="$PWD/../../scripts/scout-rustc-wrap.sh" cargo scout-audit \
   --output-format md --output-path ../../docs/scout-report.md \
   -- --target="$(rustc -vV | sed -n 's/^host: //p')"
+# Scout emits source links relative to the repository root; the report lives
+# in docs/, so make them relative to it (from PR #2).
+sed -i 's#](contracts/#](../contracts/#g' ../../docs/scout-report.md
