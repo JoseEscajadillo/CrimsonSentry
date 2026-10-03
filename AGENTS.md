@@ -20,7 +20,7 @@ That compiles every `cdylib` member to WASM. Artifacts land in `target/wasm32v1-
 
 Do not substitute this with `cargo build --target wasm32v1-none`. `stellar contract build` applies the flags and metadata the network expects.
 
-The `wasm32v1-none` Rust target must be installed (`rustup target add wasm32v1-none`). Rust 1.84 or newer is required for that target. Rust 1.82 and 1.83 cannot build contracts.
+The `wasm32v1-none` Rust target must be installed (`rustup target add wasm32v1-none`). Rust 1.91 or newer is required by this project and its current Soroban toolchain.
 
 ## Test
 
@@ -52,7 +52,7 @@ stellar contract invoke \
 
 The workspace has one contract, `policy-vault` (CrimsonSentry Policy Vault). See README.md for its API and error codes. `stellar contract invoke --id <id> -- -h` prints the generated CLI for the deployed contract.
 
-On this Windows machine, source `scripts/env.sh` (or `scripts/env.ps1`) first: the toolchain lives on D: and `wasm-opt` needs an ASCII temp dir.
+On the original Windows development machine, source `scripts/env.sh` (or `scripts/env.ps1`) first: the toolchain lives on D: and `wasm-opt` needs an ASCII temp dir. These scripts contain machine-specific paths.
 
 ## Further reading
 
