@@ -42,12 +42,13 @@ No debe utilizarse para custodiar fondos reales. El informe de Scout es una audi
 
 - Las funciones privilegiadas exigen `require_auth` del rol correspondiente.
 - El constructor crea el estado inicial; no existe un método público de inicialización.
-- Dueño y agente son direcciones distintas y no pueden ser destinos de pago.
+- La allowlist no puede incluir al propio vault. El contrato desplegado **no** valida que dueño y agente sean direcciones distintas ni que estén fuera de la allowlist; el escáner lo señala (C4, C5).
 - Las operaciones están limitadas por tamaño de allowlist y máximo de pagos.
 - La suma del gasto usa operaciones comprobadas y el perfil release activa `overflow-checks`.
 - El gasto se registra antes de transferir; la atomicidad de Stellar revierte ambas operaciones ante un fallo.
 - La pausa no impide el retiro administrativo.
 - Propuesto en el PR #2 (no desplegado): cambio de dueño en dos pasos, con autorización de la dirección entrante y cancelación antes de aceptar.
+- Propuesto en el PR #2 (no desplegado): validación on-chain de que dueño y agente son direcciones distintas y de que ninguno de los dos figura en la allowlist.
 - La integración continua compila, prueba y ejecuta análisis estático.
 
 ## Respuesta a vulnerabilidades

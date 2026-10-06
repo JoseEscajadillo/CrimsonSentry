@@ -5,6 +5,8 @@
 > Los agentes de IA ya mueven dinero solos, pero nadie revisa si su wallet tiene límites de seguridad.
 > CrimsonSentry pone un **contrato-guardián en Soroban** entre el agente y su dinero, y un **escáner** que audita la configuración del agente: cualquier pago fuera de las reglas **revierte on-chain**, comprobable en Stellar testnet.
 
+> **Alcance, en una línea:** protege los fondos depositados en el vault y los pagos que pasan por `pay`. No protege el saldo propio de la cuenta del agente ni intercepta x402/MPP, que firman desde esa cuenta (el escáner lo detecta pero no lo bloquea). Eso requiere la arquitectura B, aún por construir. Detalle en [Limitaciones conocidas](#limitaciones-conocidas).
+
 **Stellar Odyssey Perú · Track 04 — Research, Cryptography & Security Architecture** (cruzado con Track 01, AI Agents)
 
 Equipo: Santiago Fabrizio Lindley Santivañez · José Fernando Escajadillo Gaspar · Cesar Adrian Guevara Salcedo — Licencia [MIT](LICENSE)
